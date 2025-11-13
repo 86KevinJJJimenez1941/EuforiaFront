@@ -120,12 +120,13 @@
 
 <body class="min-h-screen flex flex-col">
 
-    <header class="bg-primary text-white sticky top-0 z-40 shadow-lg transition-all duration-300" id="main-header">
+    <header class="text-black sticky top-0 z-40 shadow-lg transition-all duration-300"
+        style="background-color: #F7EBEB;" id="main-header">
         <div class="container mx-auto max-w-7xl px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <span class="text-3xl">✨</span>
-                <h1 class="text-2xl md:text-3xl font-extrabold tracking-wider uppercase leading-none">
-                    Euforia <span
+                <span class="text-3xl">👑</span>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-wider leading-none">
+                    Roro <span
                         class="block text-sm md:text-base md:inline opacity-90 font-semibold normal-case tracking-normal">Boutique</span>
                 </h1>
             </div>
@@ -139,7 +140,7 @@
                 <button id="cart-button" class="relative group p-1" onclick="openCart()">
                     <div
                         class="p-3 bg-white text-primary rounded-full group-hover:bg-accent group-hover:text-white transition-colors duration-300 shadow-md">
-                        <i class="fas fa-shopping-bag text-xl"></i>
+                        <i class="fas fa-shopping-cart text-xl" style="color: #5C1414"></i>
                     </div>
                     <span id="cart-count"
                         class="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-text-dark border-2 border-primary rounded-full -mt-1 -mr-1">0</span>
@@ -153,8 +154,8 @@
         <aside id="filter-sidebar"
             class="sidebar-mobile-hidden md:w-72 bg-white p-6 rounded-2xl shadow-xl h-fit sticky top-24 md:static z-30 border border-secondary/50">
             <div class="flex justify-between items-center md:block mb-6 pb-4 border-b border-secondary">
-                <h2 class="text-xl font-extrabold text-primary flex items-center" style="color: #E85D75;">
-                    <i class="fas fa-sliders-h mr-3 opacity-70"></i> Filtros
+                <h2 class="text-xl font-extrabold text-primary flex items-center" style="color: #5C1414"">
+                    <i class=" fas fa-sliders-h mr-3 opacity-70"></i> Filtros
                 </h2>
                 <button class="md:hidden text-gray-400 hover:text-primary" onclick="toggleFilters(false)">
                     <i class="fas fa-times text-xl"></i>
@@ -171,7 +172,7 @@
                             <div class="h-4 bg-gray-200 rounded w-5/6"></div>
                         </div>
                     </div>
-                    </div>
+                </div>
             </div>
 
             <div class="mb-8">
@@ -203,7 +204,8 @@
         <section class="flex-1">
             <div class="mb-8 bg-accent/10 p-6 rounded-2xl border border-accent/20 flex items-center justify-between">
                 <div>
-                    <h2 class="text-2xl md:text-3xl font-extrabold text-primary mb-2">Catálogo Estelar ✨</h2>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-primary mb-2" style="color: #5C1414">Catálogo
+                        Estelar ✨</h2>
                     <p class="text-text-dark/70">Descubre nuestros productos más deseados.</p>
                 </div>
                 <i class="fas fa-star text-accent text-5xl opacity-20 hidden sm:block"></i>
@@ -237,7 +239,7 @@
             </div>
 
             <div id="product-grid" class="hidden grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
-                </div>
+            </div>
 
             <div id="no-results"
                 class="hidden flex flex-col items-center justify-center py-16 px-4 text-center bg-white rounded-3xl border-2 border-dashed border-gray-200">
@@ -270,7 +272,7 @@
         </div>
 
         <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4 bg-secondary/30">
-            </div>
+        </div>
 
         <div class="p-6 bg-white border-t border-gray-100 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
             <div class="flex justify-between items-end mb-2 text-gray-500 text-sm">
@@ -398,7 +400,7 @@
     <script type="module">
 
         window.formatCOP = (val) =>
-  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(val);
+            new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(val);
 
         // Importar funciones necesarias de Firebase SDK (versión modular v9+)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -407,7 +409,7 @@
 
         // --- CONFIGURACIÓN ---
         // Se importa la configuración desde el archivo externo firebase-config.js
-        import { firebaseConfig } from "./firebase-config.js"; 
+        import { firebaseConfig } from "./firebase-config.js";
 
         const appId = 'euforia';
 
