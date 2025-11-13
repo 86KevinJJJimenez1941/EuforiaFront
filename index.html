@@ -5,9 +5,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Euforia Boutique - Catálogo Interactivo</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- ESTILOS BASE Y PERSONALIZADOS --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBFC;
+            color: #4A000A;
+        }
+
+        /* Animaciones y efectos de tarjetas */
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(225, 184, 191, 0.15), 0 10px 10px -5px rgba(225, 184, 191, 0.15);
+        }
+
+        /* Sidebar del Carrito */
+        #cart-sidebar {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 150;
+        }
+
+        #cart-sidebar.open {
+            transform: translateX(0);
+        }
+
+        #cart-overlay {
+            z-index: 140;
+            display: none;
+        }
+
+        #cart-overlay.open {
+            display: block;
+        }
+
+        /* Botón Flotante de WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 130;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            animation: pulse-green 2s infinite;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1) rotate(10deg);
+            transition: all 0.3s ease;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
+
+        /* Scrollbar personalizado para el carrito */
+        #cart-items-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #cart-items-container::-webkit-scrollbar-track {
+            background: #FAF0F3;
+        }
+
+        #cart-items-container::-webkit-scrollbar-thumb {
+            background-color: #FF8FA3;
+            border-radius: 20px;
+        }
+
+        /* Utilidades extra para ocultar/mostrar sidebar filtros en móvil */
+        .sidebar-mobile-hidden {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar-mobile-hidden {
+                display: block;
+            }
+        }
+    </style>
     <script>
         tailwind.config = {
             theme: {
@@ -22,37 +115,6 @@
                 }
             }
         }
-    </script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link rel="stylesheet" href="css/style.css">
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-             // Esta lógica debe ejecutarse solo para generar el esqueleto, luego el JS lo ocultará
-             const skeletonContainer = document.getElementById('loading-skeleton');
-             if (skeletonContainer) {
-                 let html = '';
-                 for (let i = 0; i < 6; i++) {
-                    html += `
-                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
-                            <div class="h-40 sm:h-48 bg-gray-200"></div>
-                            <div class="p-4 sm:p-5 space-y-3">
-                                <div class="h-4 bg-gray-200 rounded w-1/4"></div>
-                                <div class="h-6 bg-gray-200 rounded w-3/4"></div>
-                                <div class="flex justify-between items-center pt-2">
-                                    <div class="h-8 bg-gray-200 rounded w-1/3"></div>
-                                    <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                 }
-                 skeletonContainer.innerHTML = html;
-             }
-        });
     </script>
 </head>
 
@@ -155,7 +217,24 @@
             </div>
 
             <div id="loading-skeleton" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
-                </div>
+                <script>
+                    for (let i = 0; i < 6; i++) {
+                        document.write(`
+                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
+                            <div class="h-40 sm:h-48 bg-gray-200"></div>
+                            <div class="p-4 sm:p-5 space-y-3">
+                                <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+                                <div class="flex justify-between items-center pt-2">
+                                    <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+                                    <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                        `);
+                    }
+                </script>
+            </div>
 
             <div id="product-grid" class="hidden grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
                 </div>
@@ -299,7 +378,7 @@
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <button id="add-to-cart-btn" onclick="addToCartFromModal()"
+                    <button id="add-to-cart-btn"
                         class="flex-1 bg-text-dark text-white font-bold py-4 rounded-xl hover:bg-primary transition-all duration-300 shadow-lg flex items-center justify-center text-lg active:scale-95">
                         <i class="fas fa-cart-plus mr-3"></i>
                         <span>Añadir al Pedido</span>
@@ -316,9 +395,8 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
-    <script type="module" src="js/firebase-logic.js"></script>
-
-    <script src="js/script.js"></script>
+    <script type="module" src="./js/firebase-logic.js"></script>
+    <script src="./js/ui-logic.js"></script>
 </body>
 
 </html>

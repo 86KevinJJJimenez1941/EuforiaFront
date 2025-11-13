@@ -1,9 +1,11 @@
+// --- CONFIGURACIÓN Y UTILIDADES BASE ---
+
 // Importar funciones necesarias de Firebase SDK (versión modular v9+)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, query, orderBy, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// --- CONFIGURACIÓN ---
+// Configuración de Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyD2nCryUttIjg3HaY9-r44rIZsDP1mLB5w",
     authDomain: "euforia-inv.firebaseapp.com",
@@ -25,11 +27,12 @@ const auth = getAuth(app);
 const productsCollectionPath = `/artefactos/${appId}/público/datos/productos`;
 
 
-// --- ESTADO GLOBAL ---
-// Estas variables se exponen al objeto global (window) para que script.js pueda acceder a ellas.
-window.productsData = [];
-window.filters = { areas: [], maxPrice: 300000 };
-window.isOfflineMode = false;
+// --- ESTADO GLOBAL (Exportado a window para el script de UI) ---
+let productsData = [];
+window.productsData = productsData;
+let filters = { areas: [], maxPrice: 300000 };
+window.filters = filters;
+let isOfflineMode = false;
 
 // --- DATA QUEMADA (BACKUP) ---
 const BACKUP_PRODUCTS = [
@@ -40,17 +43,10 @@ const BACKUP_PRODUCTS = [
     { id: 'bk5', name: "Labial Líquido 'Velvet Kiss'", price: 59900, area: "Labios", color: "Rosa Cereza", stock: 30, description: "Textura mousse que seca en un mate cómodo.", imageUrl: "" }
 ];
 
-// --- REFERENCIAS DOM (Exponemos al global para acceso más fácil en script.js) ---
+// --- REFERENCIAS DOM (Expuesto globalmente) ---
 window.els = {
     grid: document.getElementById('product-grid'),
     skeleton: document.getElementById('loading-skeleton'),
-    cartSidebar: document.getElementById('cart-sidebar'),
-    cartOverlay: document.getElementById('cart-overlay'),
-    cartItems: document.getElementById('cart-items-container'),
-    cartTotal: document.getElementById('cart-total'),
-    cartCount: document.getElementById('cart-count'),
-    modal: document.getElementById('product-modal'),
-    modalContent: document.getElementById('modal-content'),
     filterSidebar: document.getElementById('filter-sidebar'),
     filterCategories: document.getElementById('filter-categories'),
     noResults: document.getElementById('no-results'),
@@ -59,49 +55,70 @@ window.els = {
     offlineBadge: document.getElementById('offline-mode-badge')
 };
 
-// --- UTILIDADES FORMATO (Exponemos al global) ---
-window.formatCOP = (val) =>
-    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(val);
+// --- UTILIDADES DE FORMATO ---
+window.formatCOP = (val) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(val);
 
 window.getIcon = (area) => {
     const icons = { 'Skincare': '💧', 'Rostro': '✨', 'Ojos': '👁️', 'Labios': '💋' };
     return icons[area] || '🛍️';
 };
 
+// =================================================================================================
+// FUNCIÓN CORREGIDA: window.convertDriveLink (SOLUCIÓN AL PROBLEMA DE IMÁGENES)
+// =================================================================================================
 window.convertDriveLink = (url) => {
     if (!url) return null;
-    if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) return url;
-    let id = null;
-    const parts = url.split('/');
-    const dIndex = parts.indexOf('d');
-    if (dIndex !== -1 && parts.length > dIndex + 1) {
-        id = parts[dIndex + 1];
-    } else if (url.includes('id=')) {
-        const match = url.match(/id=([a-zA-Z0-9_-]+)/);
-        if (match && match[1]) id = match[1];
+    
+    // 1. Si ya es una URL de imagen estándar (Storage o directa), úsala directamente.
+    if (url.includes('firebasestorage.googleapis.com') || url.match(/\.(jpeg|jpg|gif|png|webp)(\?|$)/i)) {
+        return url;
     }
-    if (id) return `https://lh3.googleusercontent.com/d/$$${id}=s800`;
+
+    let id = null;
+
+    // 2. Intenta extraer el ID del formato de visualización (drive.google.com/file/d/ID/view)
+    const matchId = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    
+    // 3. Intenta extraer el ID del formato de enlace compartido (drive.google.com/...id=ID...)
+    const matchIdQuery = url.match(/id=([a-zA-Z0-9_-]+)/);
+
+    if (matchId && matchId[1]) {
+        id = matchId[1];
+    } else if (matchIdQuery && matchIdQuery[1]) {
+        id = matchIdQuery[1];
+    }
+    
+    // 4. Si se encuentra un ID, devuelve la URL de incrustación pública (el endpoint MÁS FIABLE).
+    if (id) {
+        return `https://drive.google.com/uc?export=view&id=${id}`;
+    }
+    
+    // 5. Si no se puede parsear o no es de Drive, devuelve la URL original.
     return url;
 }
+// =================================================================================================
 
-// --- FUNCIONES DE FIREBASE ---
+
+// --- LÓGICA DE DATOS ---
 
 function subscribeToProducts() {
     const q = query(collection(db, productsCollectionPath), orderBy('name'));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-        if (window.isOfflineMode) {
-            window.isOfflineMode = false;
+        if (isOfflineMode) {
+            isOfflineMode = false;
             window.els.offlineBadge.classList.add('hidden');
         }
 
-        window.productsData = [];
+        productsData.length = 0; // Limpiar array
         snapshot.forEach((doc) => {
-            window.productsData.push({ id: doc.id, ...doc.data() });
+            productsData.push({ id: doc.id, ...doc.data() });
         });
 
-        if (window.productsData.length === 0 && !window.demoDataAttempted) {
-            window.demoDataAttempted = true; 
+        window.productsData = productsData.slice(); // Sincroniza la variable global
+
+        if (productsData.length === 0 && !window.demoDataAttempted) {
+            window.demoDataAttempted = true;
             checkAndLoadDemoData();
         } else {
             updateUI();
@@ -112,34 +129,37 @@ function subscribeToProducts() {
     });
 }
 
+
 function enableOfflineMode() {
-    if (window.isOfflineMode) return; 
+    if (isOfflineMode) return;
     console.warn("⚠️ Activando modo offline con data de respaldo.");
-    window.isOfflineMode = true;
-    window.productsData = [...BACKUP_PRODUCTS]; 
+    isOfflineMode = true;
+    window.productsData = [...BACKUP_PRODUCTS];
     window.els.offlineBadge.classList.remove('hidden');
     updateUI();
 }
 
-function updateUI() {
+// Expuesta globalmente para que el script de UI pueda llamarla
+window.updateUI = () => {
     window.initFilters();
-    window.renderProducts();
+    window.renderProducts(); // Asumimos que esta función es definida en el script de UI
     window.els.skeleton.classList.add('hidden');
     window.els.grid.classList.remove('hidden');
 }
+
 
 async function checkAndLoadDemoData() {
     try {
         const q = query(collection(db, productsCollectionPath));
         const snapshot = await getDocs(q);
         if (snapshot.empty) {
-            console.log("⚠️ Colección vacía detectada. Iniciando carga de datos demo...");
+            console.log("⚠️ Colección vacía. Iniciando carga de datos demo...");
             const promises = BACKUP_PRODUCTS.map(p => {
                 const { id, ...productData } = p;
                 return addDoc(collection(db, productsCollectionPath), productData);
             });
             await Promise.all(promises);
-            console.log("✅ Datos demo cargados exitosamente en Firebase.");
+            console.log("✅ Datos demo cargados exitosamente.");
         }
     } catch (e) {
         console.error("Error verificando/cargando demo data:", e);
@@ -147,71 +167,11 @@ async function checkAndLoadDemoData() {
     }
 }
 
-// --- AUTENTICACIÓN ROBUSTA ---
-if (typeof __initial_auth_token !== 'undefined') {
-    signInWithCustomToken(auth, __initial_auth_token).catch(enableOfflineMode);
-} else {
-    signInAnonymously(auth).catch(enableOfflineMode);
-}
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log("✅ Auth confirmada. Iniciando suscripción a datos...");
-        subscribeToProducts();
-    }
-});
-
-
-// --- LÓGICA DE FILTROS Y RENDERIZADO (Exponemos al global) ---
-// La lógica de renderizado debe ser una función global para que los botones HTML la puedan llamar
-window.renderProducts = () => {
-    const dataToRender = window.isOfflineMode ? BACKUP_PRODUCTS : window.productsData;
-
-    const filtered = dataToRender.filter(p => {
-        const areaOk = window.filters.areas.length === 0 || window.filters.areas.includes(p.area);
-        const priceOk = p.price <= window.filters.maxPrice;
-        return areaOk && priceOk;
-    });
-
-    if (filtered.length === 0) {
-        window.els.grid.classList.add('hidden');
-        window.els.noResults.classList.remove('hidden');
-        return;
-    }
-
-    window.els.grid.classList.remove('hidden');
-    window.els.noResults.classList.add('hidden');
-
-    window.els.grid.innerHTML = filtered.map(p => {
-        const imgUrl = window.convertDriveLink(p.imageUrl);
-        const imageHTML = imgUrl
-            ? `<img src="${imgUrl}" alt="${p.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'text-6xl sm:text-7xl transition-transform duration-500 group-hover:scale-110\\'>${window.getIcon(p.area)}</span>'">`
-            : `<span class="text-6xl sm:text-7xl transition-transform duration-500 group-hover:scale-110">${window.getIcon(p.area)}</span>`;
-
-        return `
-        <div class="product-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 cursor-pointer group" onclick="openModal('${p.id}')">
-            <div class="h-48 sm:h-56 bg-secondary/50 flex items-center justify-center relative overflow-hidden">
-                ${imageHTML}
-                ${(p.stock && p.stock < 10) ? `<span class="absolute top-3 right-3 bg-accent text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">¡Últimas uds!</span>` : ''}
-            </div>
-            <div class="p-4 sm:p-5">
-                <p class="text-xs font-bold text-primary/70 uppercase tracking-wider mb-1 flex items-center">
-                    ${window.getIcon(p.area)} <span class="ml-1">${p.area}</span>
-                </p>
-                <h3 class="font-bold text-text-dark text-base sm:text-lg leading-tight line-clamp-2 h-11 sm:h-14">${p.name}</h3>
-                <div class="flex items-center justify-between mt-3 sm:mt-4">
-                    <span class="text-xl sm:text-2xl font-extrabold text-primary">${window.formatCOP(p.price)}</span>
-                    <button class="w-10 h-10 bg-secondary text-primary rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors shadow-sm active:scale-95">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `}).join('');
-};
+// --- LÓGICA DE FILTROS (Exportada globalmente) ---
 
 window.initFilters = () => {
-    const dataToUse = window.isOfflineMode ? BACKUP_PRODUCTS : window.productsData;
+    const dataToUse = isOfflineMode ? BACKUP_PRODUCTS : window.productsData;
     const areas = [...new Set(dataToUse.map(p => p.area))].filter(Boolean).sort();
 
     if (areas.length === 0) {
@@ -234,12 +194,13 @@ window.updateFiltersState = () => {
 
 window.applyFilters = () => {
     window.renderProducts();
-    if (window.innerWidth < 768) window.toggleFilters(false);
+    if (window.innerWidth < 768 && window.toggleFilters) window.toggleFilters(false);
     window.scrollTo({ top: document.getElementById('main-header').offsetHeight, behavior: 'smooth' });
 }
 
 window.resetFilters = () => {
-    window.filters = { areas: [], maxPrice: 300000 };
+    window.filters.areas = [];
+    window.filters.maxPrice = 300000;
     document.querySelectorAll('#filter-categories input').forEach(i => i.checked = false);
     window.els.priceRange.value = 300000;
     window.els.priceValue.textContent = window.formatCOP(300000);
@@ -260,12 +221,24 @@ window.toggleFilters = (show) => {
     }
 }
 
-// Evento de filtro de precio
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.els.priceRange) {
-        window.els.priceRange.addEventListener('input', (e) => {
-            window.filters.maxPrice = parseInt(e.target.value);
-            window.els.priceValue.textContent = window.formatCOP(window.filters.maxPrice);
-        });
+// Event Listeners
+window.els.priceRange.addEventListener('input', (e) => {
+    window.filters.maxPrice = parseInt(e.target.value);
+    window.els.priceValue.textContent = window.formatCOP(window.filters.maxPrice);
+});
+
+// --- AUTENTICACIÓN E INICIO ---
+
+// Manejar la autenticación
+if (typeof __initial_auth_token !== 'undefined') {
+    signInWithCustomToken(auth, __initial_auth_token).catch(enableOfflineMode);
+} else {
+    signInAnonymously(auth).catch(enableOfflineMode);
+}
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("✅ Auth confirmada. Iniciando suscripción a datos...");
+        subscribeToProducts();
     }
 });
