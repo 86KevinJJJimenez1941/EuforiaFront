@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euforia Boutique - Catálogo Interactivo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#E85D75',   /* Terracota vibrante */
+                        'secondary': '#FAF0F3', /* Crema base */
+                        'accent': '#FF8FA3',    /* Rosa eléctrico */
+                        'text-dark': '#4A000A', /* Granate oscuro */
+                        'whatsapp': '#25D366'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+             // Esta lógica debe ejecutarse solo para generar el esqueleto, luego el JS lo ocultará
+             const skeletonContainer = document.getElementById('loading-skeleton');
+             if (skeletonContainer) {
+                 let html = '';
+                 for (let i = 0; i < 6; i++) {
+                    html += `
+                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
+                            <div class="h-40 sm:h-48 bg-gray-200"></div>
+                            <div class="p-4 sm:p-5 space-y-3">
+                                <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+                                <div class="flex justify-between items-center pt-2">
+                                    <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+                                    <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                 }
+                 skeletonContainer.innerHTML = html;
+             }
+        });
+    </script>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <header class="bg-primary text-white sticky top-0 z-40 shadow-lg transition-all duration-300" id="main-header">
+        <div class="container mx-auto max-w-7xl px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-3xl">✨</span>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-wider uppercase leading-none">
+                    Euforia <span
+                        class="block text-sm md:text-base md:inline opacity-90 font-semibold normal-case tracking-normal">Boutique</span>
+                </h1>
+            </div>
+
+            <div class="flex items-center space-x-3 md:space-x-6">
+                <button id="toggle-filters-btn"
+                    class="md:hidden p-2 text-sm bg-white/10 rounded-lg hover:bg-white/20 transition flex items-center">
+                    <i class="fas fa-filter mr-2"></i> Filtros
+                </button>
+
+                <button id="cart-button" class="relative group p-1" onclick="openCart()">
+                    <div
+                        class="p-3 bg-white text-primary rounded-full group-hover:bg-accent group-hover:text-white transition-colors duration-300 shadow-md">
+                        <i class="fas fa-shopping-bag text-xl"></i>
+                    </div>
+                    <span id="cart-count"
+                        class="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-text-dark border-2 border-primary rounded-full -mt-1 -mr-1">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto max-w-7xl px-4 py-8 flex flex-col md:flex-row gap-8 relative">
+
+        <aside id="filter-sidebar"
+            class="sidebar-mobile-hidden md:w-72 bg-white p-6 rounded-2xl shadow-xl h-fit sticky top-24 md:static z-30 border border-secondary/50">
+            <div class="flex justify-between items-center md:block mb-6 pb-4 border-b border-secondary">
+                <h2 class="text-xl font-extrabold text-primary flex items-center" style="color: #E85D75;">
+                    <i class="fas fa-sliders-h mr-3 opacity-70"></i> Filtros
+                </h2>
+                <button class="md:hidden text-gray-400 hover:text-primary" onclick="toggleFilters(false)">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-text-dark mb-4 uppercase text-sm tracking-wider">Área / Categoría</h3>
+                <div class="space-y-3" id="filter-categories">
+                    <div class="animate-pulse flex space-x-4">
+                        <div class="flex-1 space-y-4 py-1">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-4 bg-gray-200 rounded"></div>
+                            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-text-dark mb-4 uppercase text-sm tracking-wider">
+                    Precio Máximo
+                </h3>
+                <div class="px-2">
+                    <input type="range" id="price-range" min="10000" max="300000" value="300000" step="5000"
+                        class="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary">
+                    <div class="flex justify-between text-sm font-bold mt-3 text-primary">
+                        <span>$10mil</span>
+                        <span id="price-value" class="bg-primary text-white px-2 py-1 rounded-md">$300.000</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button onclick="applyFilters()"
+                    class="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-text-dark transition-colors duration-300 shadow-md active:scale-95">
+                    Aplicar Filtros
+                </button>
+                <button onclick="resetFilters()"
+                    class="w-full py-2 text-sm text-gray-500 hover:text-accent transition-colors flex justify-center items-center">
+                    <i class="fas fa-undo-alt mr-2"></i> Limpiar todo
+                </button>
+            </div>
+        </aside>
+
+        <section class="flex-1">
+            <div class="mb-8 bg-accent/10 p-6 rounded-2xl border border-accent/20 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-primary mb-2">Catálogo Estelar ✨</h2>
+                    <p class="text-text-dark/70">Descubre nuestros productos más deseados.</p>
+                </div>
+                <i class="fas fa-star text-accent text-5xl opacity-20 hidden sm:block"></i>
+            </div>
+
+            <div id="offline-mode-badge"
+                class="hidden mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md"
+                role="alert">
+                <p class="font-bold">Modo sin conexión</p>
+                <p>No pudimos conectar con el servidor. Estás viendo una versión local del catálogo.</p>
+            </div>
+
+            <div id="loading-skeleton" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
+                </div>
+
+            <div id="product-grid" class="hidden grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
+                </div>
+
+            <div id="no-results"
+                class="hidden flex flex-col items-center justify-center py-16 px-4 text-center bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                <div class="text-6xl mb-4">🧐</div>
+                <h3 class="text-xl font-bold text-text-dark mb-2">No encontramos coincidencias</h3>
+                <p class="text-gray-500 mb-6 max-w-md">Intenta ajustar tus filtros de precio o categoría para ver más
+                    productos maravillosos.</p>
+                <button onclick="resetFilters()"
+                    class="px-6 py-3 bg-accent text-white rounded-full font-bold hover:bg-primary transition-colors">
+                    Ver todos los productos
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="cart-overlay" class="fixed inset-0 bg-text-dark/60 backdrop-blur-sm transition-opacity"
+        onclick="closeAllOverlays()"></div>
+
+    <aside id="cart-sidebar"
+        class="fixed top-0 right-0 h-[100dvh] w-full sm:w-[450px] bg-white shadow-2xl flex flex-col">
+        <div class="p-6 bg-primary text-white flex justify-between items-center shadow-md">
+            <h2 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-shopping-bag mr-3"></i> Tu Pedido
+            </h2>
+            <button onclick="closeCart()"
+                class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4 bg-secondary/30">
+            </div>
+
+        <div class="p-6 bg-white border-t border-gray-100 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+            <div class="flex justify-between items-end mb-2 text-gray-500 text-sm">
+                <span>Subtotal estimado:</span>
+            </div>
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-3xl font-extrabold text-text-dark">Total:</span>
+                <div class="text-right">
+                    <span id="cart-total" class="text-3xl font-extrabold text-primary block leading-none">COP$ 0</span>
+                </div>
+            </div>
+
+            <button id="whatsapp-order-btn" onclick="generateWhatsAppLink()" disabled
+                class="group w-full py-4 bg-whatsapp text-white text-lg font-bold rounded-xl hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center relative overflow-hidden shadow-whatsapp/50 shadow-lg">
+                <span class="relative z-10 flex items-center">
+                    <i class="fab fa-whatsapp text-2xl mr-3"></i>
+                    Enviar Pedido al WhatsApp
+                </span>
+                <div
+                    class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]">
+                </div>
+            </button>
+            <p class="text-xs text-center text-gray-400 mt-3 px-4">
+                Al hacer clic, se abrirá WhatsApp con el resumen listo para enviar a nuestro equipo.
+            </p>
+        </div>
+    </aside>
+
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-text-dark/70 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+
+        <div class="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] scale-95 opacity-0 transition-all duration-300"
+            id="modal-content">
+            <div class="relative h-64 sm:h-80 bg-secondary flex items-center justify-center overflow-hidden">
+                <button onclick="closeModal()"
+                    class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur flex items-center justify-center rounded-full text-text-dark hover:bg-white hover:scale-110 transition z-10 shadow-sm">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <img id="modal-image" src="" alt="Producto" class="w-full h-full object-cover hidden">
+                <div id="modal-icon-placeholder"
+                    class="flex flex-col items-center justify-center w-full h-full p-8 text-primary">
+                    <span id="modal-icon-bg"
+                        class="absolute text-[15rem] opacity-10 transform -rotate-12 select-none"></span>
+                    <div class="text-center relative z-10">
+                        <span id="modal-icon" class="text-7xl sm:text-8xl drop-shadow-md"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-grow bg-white relative z-10 -mt-6 rounded-t-3xl shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                <div class="flex items-center justify-between mb-3">
+                    <span id="modal-category"
+                        class="px-3 py-1 bg-accent/10 text-accent text-xs font-extrabold uppercase rounded-full tracking-wider">
+                        Categoría
+                    </span>
+                    <div id="modal-stock-badge"
+                        class="flex items-center text-xs font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                        <i class="fas fa-check-circle mr-1.5"></i> En Stock
+                    </div>
+                </div>
+
+                <h3 id="modal-name" class="text-2xl sm:text-3xl font-extrabold text-text-dark leading-tight mb-4">
+                    Nombre del Producto
+                </h3>
+
+                <div class="mb-6">
+                    <span id="modal-price" class="text-4xl font-extrabold text-primary">
+                        $0
+                    </span>
+                </div>
+
+                <p id="modal-description" class="text-gray-600 leading-relaxed mb-8 text-base sm:text-lg">
+                    Descripción detallada del producto aquí.
+                </p>
+
+                <div class="grid grid-cols-2 gap-4 mb-8 bg-secondary/30 p-4 rounded-xl">
+                    <div>
+                        <span class="block text-xs font-bold text-text-dark/50 uppercase mb-1">Tono / Acabado</span>
+                        <span id="modal-color" class="font-semibold text-text-dark flex items-center">
+                            <span
+                                class="w-3 h-3 rounded-full bg-accent mr-2 inline-block border border-black/10"></span>
+                            <span id="modal-color-text">Tono</span>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-text-dark/50 uppercase mb-1">Disponibles</span>
+                        <span id="modal-stock-count" class="font-semibold text-text-dark">0 uds.</span>
+                    </div>
+                </div>
+
+                <div class="flex space-x-4 sticky bottom-0 bg-white pt-4 pb-2 border-t border-gray-100">
+                    <div class="flex items-center border-2 border-secondary rounded-xl px-4 bg-secondary/20">
+                        <button onclick="adjustModalQuantity(-1)"
+                            class="text-primary hover:text-accent p-3 transition active:scale-90">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" id="modal-quantity" value="1" min="1" max="99"
+                            class="w-12 text-center bg-transparent font-bold text-lg text-text-dark focus:outline-none"
+                            readonly>
+                        <button onclick="adjustModalQuantity(1)"
+                            class="text-primary hover:text-accent p-3 transition active:scale-90">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <button id="add-to-cart-btn" onclick="addToCartFromModal()"
+                        class="flex-1 bg-text-dark text-white font-bold py-4 rounded-xl hover:bg-primary transition-all duration-300 shadow-lg flex items-center justify-center text-lg active:scale-95">
+                        <i class="fas fa-cart-plus mr-3"></i>
+                        <span>Añadir al Pedido</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/573188401247?text=Hola%20Euforia%20Boutique,%20quisiera%20asesor%C3%ADa%20personalizada."
+        target="_blank"
+        class="whatsapp-float w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center text-white text-3xl transition-transform hover:scale-110"
+        title="Habla con una asesora">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script type="module" src="js/firebase-logic.js"></script>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
