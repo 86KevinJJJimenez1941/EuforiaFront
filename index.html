@@ -27,680 +27,878 @@
             box-shadow: 0 20px 25px -5px rgba(225, 184, 191, 0.15), 0 10px 10px -5px rgba(225, 184, 191, 0.15);
         }
 
-        /* Sidebar y overlay del carrito */
-        .cart-overlay {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 50;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-
-        .cart-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .cart-sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 100%;
-            max-width: 400px;
-            height: 100%;
-            background-color: #ffffff;
-            z-index: 60;
+        /* Sidebar del Carrito */
+        #cart-sidebar {
             transform: translateX(100%);
-            transition: transform 0.3s ease-out;
-            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            z-index: 150;
         }
 
-        .cart-overlay.open .cart-sidebar {
+        #cart-sidebar.open {
             transform: translateX(0);
         }
 
-        /* Sidebar de filtros */
-        .filters-sidebar {
+        #cart-overlay {
+            z-index: 140;
+            display: none;
+        }
+
+        #cart-overlay.open {
+            display: block;
+        }
+
+        /* Botón Flotante de WhatsApp */
+        .whatsapp-float {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            max-width: 300px;
-            height: 100%;
-            background-color: #ffffff;
-            z-index: 60;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-out;
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
+            bottom: 25px;
+            right: 25px;
+            z-index: 130;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            animation: pulse-green 2s infinite;
         }
 
-        .filters-overlay.open .filters-sidebar {
-            transform: translateX(0);
+        .whatsapp-float:hover {
+            transform: scale(1.1) rotate(10deg);
+            transition: all 0.3s ease;
         }
 
-        .filters-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 50;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
         }
 
-        .filters-overlay.open {
-            opacity: 1;
-            visibility: visible;
+        /* Scrollbar personalizado para el carrito */
+        #cart-items-container::-webkit-scrollbar {
+            width: 6px;
         }
 
-        /* Modal de producto */
-        .modal {
-            background-color: rgba(0, 0, 0, 0.6);
+        #cart-items-container::-webkit-scrollbar-track {
+            background: #FAF0F3;
+        }
+
+        #cart-items-container::-webkit-scrollbar-thumb {
+            background-color: #FF8FA3;
+            border-radius: 20px;
+        }
+
+        /* Utilidades extra para ocultar/mostrar sidebar filtros en móvil */
+        .sidebar-mobile-hidden {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar-mobile-hidden {
+                display: block;
+            }
         }
     </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#E85D75',   /* Terracota vibrante */
+                        'secondary': '#FAF0F3', /* Crema base */
+                        'accent': '#FF8FA3',    /* Rosa eléctrico */
+                        'text-dark': '#4A000A', /* Granate oscuro */
+                        'whatsapp': '#25D366'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
-<body>
+<body class="min-h-screen flex flex-col">
 
-    <section id="welcome-section" class="h-screen w-full flex flex-col items-center justify-center text-center px-4 bg-pink-50">
-        <div class="max-w-4xl p-8 rounded-xl bg-white shadow-xl">
-            <div class="mb-6">
-                <i class="fas fa-gem text-6xl text-[#4A000A]"></i> </div>
+    <header class="text-black sticky top-0 z-40 shadow-lg transition-all duration-300"
+        style="background-color: #F7EBEB;" id="main-header">
+        <div class="container mx-auto max-w-7xl px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-3xl">👑</span>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-wider leading-none">
+                    Roro <span
+                        class="block text-sm md:text-base md:inline opacity-90 font-semibold normal-case tracking-normal">Boutique</span>
+                </h1>
+            </div>
 
-            <h1 class="text-5xl font-extrabold mb-4 text-[#4A000A]">
-                ¡Bienvenida a Euforia Boutique! ✨
-            </h1>
-
-            <p class="text-xl text-gray-700 mb-8">
-                Somos tu destino exclusivo para la moda que te hace sentir fabulosa. Descubre prendas únicas, de alta calidad y que resaltan tu belleza y estilo en cada ocasión.
-            </p>
-
-            <div class="space-y-4 sm:space-y-0 sm:space-x-4">
-                <button id="view-products-btn"
-                    class="px-8 py-3 bg-[#4A000A] text-white font-bold rounded-full shadow-lg hover:bg-red-800 transition duration-300 transform hover:scale-105">
-                    🛍️ Mirar Productos
+            <div class="flex items-center space-x-3 md:space-x-6">
+                <button id="toggle-filters-btn"
+                    class="md:hidden p-2 text-sm bg-white/10 rounded-lg hover:bg-white/20 transition flex items-center">
+                    <i class="fas fa-filter mr-2"></i> Filtros
                 </button>
-                
-                <button id="view-categories-btn"
-                    class="px-8 py-3 bg-white text-[#4A000A] font-bold rounded-full border-2 border-[#4A000A] shadow-lg hover:bg-pink-100 transition duration-300 transform hover:scale-105">
-                    🏷️ Mirar Categorías
+
+                <button id="cart-button" class="relative group p-1" onclick="openCart()">
+                    <div
+                        class="p-3 bg-white text-primary rounded-full group-hover:bg-accent group-hover:text-white transition-colors duration-300 shadow-md">
+                        <i class="fas fa-shopping-cart text-xl" style="color: #5C1414"></i>
+                    </div>
+                    <span id="cart-count"
+                        class="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-text-dark border-2 border-primary rounded-full -mt-1 -mr-1">0</span>
                 </button>
             </div>
         </div>
-    </section>
-    <div id="main-content" class="hidden">
-        <header class="sticky top-0 z-40 bg-white shadow-md">
-            <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 class="text-3xl font-bold tracking-tight text-[#4A000A]">Euforia Boutique</h1>
-                <div class="flex items-center space-x-4">
-                    <button id="toggle-filters-btn" class="text-gray-600 hover:text-[#4A000A] p-2 rounded-full">
-                        <i class="fas fa-filter text-xl"></i>
-                    </button>
-                    <button id="toggle-cart-btn" class="relative text-gray-600 hover:text-[#4A000A] p-2 rounded-full">
-                        <i class="fas fa-shopping-cart text-xl"></i>
-                        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center opacity-0 transition-opacity duration-300">0</span>
-                    </button>
-                </div>
-            </div>
-        </header>
+    </header>
 
-        <main class="max-w-6xl mx-auto p-4 md:p-8">
-            <h2 class="text-4xl font-extrabold mb-8 text-center text-[#4A000A]">Nuestros Productos</h2>
+    <main class="flex-grow container mx-auto max-w-7xl px-4 py-8 flex flex-col md:flex-row gap-8 relative">
 
-            <div class="mb-8 max-w-lg mx-auto">
-                <div class="relative">
-                    <input type="text" id="search-input" placeholder="Buscar por nombre o descripción..."
-                        class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4A000A]">
-                    <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
-                </div>
+        <aside id="filter-sidebar"
+            class="sidebar-mobile-hidden md:w-72 p-6 rounded-2xl shadow-xl h-fit sticky top-24 md:static z-30 border border-secondary/50" style="background-color: #F7EBEB;">
+            <div class="flex justify-between items-center md:block mb-6 pb-4 border-b border-secondary">
+                <h2 class="text-xl font-extrabold text-primary flex items-center" style="color: #5C1414"">
+                    <i class=" fas fa-sliders-h mr-3 opacity-70"></i> Filtros
+                </h2>
+                <button class="md:hidden text-gray-400 hover:text-primary" onclick="toggleFilters(false)">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
 
-            <div id="products-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div class="mb-8">
+                <h3 class="font-bold text-text-dark mb-4 uppercase text-sm tracking-wider">Área / Categoría</h3>
+                <div class="space-y-3" id="filter-categories">
+                    <div class="animate-pulse flex space-x-4">
+                        <div class="flex-1 space-y-4 py-1">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-4 bg-gray-200 rounded"></div>
+                            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                        </div>
+                    </div>
                 </div>
-
-            <div id="loading-state" class="text-center py-20 hidden">
-                <i class="fas fa-spinner fa-spin text-4xl text-[#4A000A] mb-4"></i>
-                <p class="text-gray-500">Cargando productos...</p>
             </div>
-            <div id="empty-state" class="text-center py-20 hidden">
-                <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
-                <p class="text-gray-500">No se encontraron productos que coincidan con tu búsqueda o filtros.</p>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-text-dark mb-4 uppercase text-sm tracking-wider">
+                    Precio Máximo
+                </h3>
+                <div class="px-2">
+                    <input type="range" id="price-range" min="10000" max="300000" value="300000" step="5000"
+                        class="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary">
+                    <div class="flex justify-between text-sm font-bold mt-3 text-primary">
+                        <span>$10mil</span>
+                        <span id="price-value" class="bg-primary text-white px-2 py-1 rounded-md">$300.000</span>
+                    </div>
+                </div>
             </div>
 
-        </main>
+            <div class="flex flex-col gap-3">
+                <button onclick="applyFilters()"
+                    class="w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-text-dark transition-colors duration-300 shadow-md active:scale-95">
+                    Aplicar Filtros
+                </button>
+                <button onclick="resetFilters()"
+                    class="w-full py-2 text-sm text-gray-500 hover:text-accent transition-colors flex justify-center items-center">
+                    <i class="fas fa-undo-alt mr-2"></i> Limpiar todo
+                </button>
+            </div>
+        </aside>
 
-
-        <div id="filters-overlay" class="filters-overlay" onclick="window.toggleFilters(false)">
-            <aside id="filters-sidebar" class="filters-sidebar" onclick="event.stopPropagation()">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-[#4A000A]">Filtros</h3>
-                        <button onclick="window.toggleFilters(false)" class="text-gray-400 hover:text-[#4A000A] p-2">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-lg font-semibold mb-2 text-gray-700">Categoría</label>
-                        <select id="category-filter"
-                            class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4A000A] text-gray-600">
-                            <option value="">Todas</option>
-                            </select>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-lg font-semibold mb-2 text-gray-700">Talla</label>
-                        <div id="size-filters" class="flex flex-wrap gap-2">
-                            </div>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-lg font-semibold mb-2 text-gray-700">Precio</label>
-                        <div class="text-sm font-medium text-gray-600 mb-2" id="price-range-label">
-                            COP $0 - COP $500.000+
-                        </div>
-                        <input type="range" id="price-filter" min="0" max="500000" step="10000" value="500000"
-                            class="w-full h-2 bg-pink-100 rounded-lg appearance-none cursor-pointer range-lg" style="--webkit-slider-thumb-bg: #4A000A; --moz-range-thumb-bg: #4A000A;">
-                    </div>
-
-
-                    <button onclick="window.resetFilters()"
-                        class="w-full mt-4 py-2 text-white bg-gray-500 rounded-full hover:bg-gray-600 transition duration-200 font-semibold">
-                        Limpiar Filtros
-                    </button>
+        <section class="flex-1">
+            <div class="mb-8 bg-accent/10 p-6 rounded-2xl border border-accent/20 flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-primary mb-2" style="color: #5C1414">Catálogo
+                        Estelar ✨</h2>
+                    <p class="text-text-dark/70">Descubre nuestros productos más deseados.</p>
                 </div>
-            </aside>
-        </div>
-        <div id="cart-overlay" class="cart-overlay" onclick="closeCart()">
-            <aside id="cart-sidebar" class="cart-sidebar" onclick="event.stopPropagation()">
-                <div class="p-6 flex flex-col h-full">
-                    <div class="flex justify-between items-center mb-6 border-b pb-4">
-                        <h3 class="text-2xl font-bold text-[#4A000A]">Tu Carrito (<span id="cart-item-count">0</span>)</h3>
-                        <button onclick="closeCart()" class="text-gray-400 hover:text-[#4A000A] p-2">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
+                <i class="fas fa-star text-accent text-5xl opacity-20 hidden sm:block"></i>
+            </div>
 
-                    <div id="cart-items-container" class="flex-grow overflow-y-auto space-y-4 pr-2">
-                        </div>
+            <div id="offline-mode-badge"
+                class="hidden mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md"
+                role="alert">
+                <p class="font-bold">Modo sin conexión</p>
+                <p>No pudimos conectar con el servidor. Estás viendo una versión local del catálogo.</p>
+            </div>
 
-                    <div class="mt-auto pt-6 border-t">
-                        <div class="flex justify-between font-semibold text-xl mb-4">
-                            <span>Total:</span>
-                            <span id="cart-total" class="text-[#4A000A]">COP $0</span>
-                        </div>
-                        <button id="checkout-btn" onclick="generateWhatsAppLink()" disabled
-                            class="w-full py-3 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fab fa-whatsapp"></i> Finalizar Pedido
-                        </button>
-                        <button id="empty-cart-btn" onclick="clearCart()"
-                            class="w-full mt-2 py-2 text-red-500 border border-red-500 rounded-full hover:bg-red-50 transition duration-300 font-semibold">
-                            Vaciar Carrito
-                        </button>
-                    </div>
-                </div>
-            </aside>
-        </div>
-        <div id="product-modal"
-            class="modal fixed inset-0 z-50 hidden flex items-center justify-center p-4 transition-opacity duration-300"
-            onclick="closeModal()">
-            <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-                onclick="event.stopPropagation()">
-                <div class="relative">
-                    <button onclick="closeModal()"
-                        class="absolute top-4 right-4 text-gray-500 hover:text-[#4A000A] z-10 p-2 bg-white rounded-full shadow-md">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-
-                    <div id="modal-content" class="md:flex">
-                        <div class="md:w-1/2 p-6">
-                            <img id="modal-image" src="" alt="Imagen del Producto"
-                                class="w-full h-auto object-cover rounded-lg shadow-md">
-                        </div>
-
-                        <div class="md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
-                            <div>
-                                <h3 id="modal-name" class="text-3xl font-extrabold mb-3 text-[#4A000A]"></h3>
-                                <p id="modal-price" class="text-2xl font-bold text-red-600 mb-4"></p>
-                                <p id="modal-description" class="text-gray-600 mb-6 border-b pb-4"></p>
-
-                                <div id="modal-sizes-container" class="mb-6">
-                                    <label class="block text-lg font-semibold mb-3 text-gray-700">Selecciona Talla</label>
-                                    <div id="modal-size-options" class="flex flex-wrap gap-3">
-                                        </div>
-                                    <p id="size-warning" class="text-red-500 text-sm mt-2 hidden">Por favor, selecciona una talla.</p>
+            <div id="loading-skeleton" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
+                <script>
+                    for (let i = 0; i < 6; i++) {
+                        document.write(`
+                        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
+                            <div class="h-40 sm:h-48 bg-gray-200"></div>
+                            <div class="p-4 sm:p-5 space-y-3">
+                                <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+                                <div class="flex justify-between items-center pt-2">
+                                    <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+                                    <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
                                 </div>
                             </div>
+                        </div>
+                        `);
+                    }
+                </script>
+            </div>
 
-                            <button id="add-to-cart-btn" disabled
-                                class="w-full mt-4 py-3 bg-[#4A000A] text-white font-bold rounded-full shadow-lg hover:bg-red-800 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                                Añadir al Carrito
+            <div id="product-grid" class="hidden grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6">
+            </div>
+
+            <div id="no-results"
+                class="hidden flex flex-col items-center justify-center py-16 px-4 text-center bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                <div class="text-6xl mb-4">🧐</div>
+                <h3 class="text-xl font-bold text-text-dark mb-2">No encontramos coincidencias</h3>
+                <p class="text-gray-500 mb-6 max-w-md">Intenta ajustar tus filtros de precio o categoría para ver más
+                    productos maravillosos.</p>
+                <button onclick="resetFilters()"
+                    class="px-6 py-3 bg-accent text-white rounded-full font-bold hover:bg-primary transition-colors">
+                    Ver todos los productos
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="cart-overlay" class="fixed inset-0 bg-text-dark/60 backdrop-blur-sm transition-opacity"
+        onclick="closeAllOverlays()"></div>
+
+    <aside id="cart-sidebar"
+        class="fixed top-0 right-0 h-[100dvh] w-full sm:w-[450px] bg-white shadow-2xl flex flex-col">
+        <div class="p-6 bg-primary text-white flex justify-between items-center shadow-md">
+            <h2 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-shopping-bag mr-3"></i> Tu Pedido
+            </h2>
+            <button onclick="closeCart()"
+                class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4 bg-secondary/30">
+        </div>
+
+        <div class="p-6 bg-white border-t border-gray-100 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+            <div class="flex justify-between items-end mb-2 text-gray-500 text-sm">
+                <span>Subtotal estimado:</span>
+            </div>
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-3xl font-extrabold text-text-dark">Total:</span>
+                <div class="text-right">
+                    <span id="cart-total" class="text-3xl font-extrabold text-primary block leading-none">COP$ 0</span>
+                </div>
+            </div>
+
+            <button id="whatsapp-order-btn" onclick="generateWhatsAppLink()" disabled
+                class="group w-full py-4 bg-whatsapp text-white text-lg font-bold rounded-xl hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center relative overflow-hidden shadow-whatsapp/50 shadow-lg">
+                <span class="relative z-10 flex items-center">
+                    <i class="fab fa-whatsapp text-2xl mr-3"></i>
+                    Enviar Pedido al WhatsApp
+                </span>
+                <div
+                    class="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]">
+                </div>
+            </button>
+            <p class="text-xs text-center text-gray-400 mt-3 px-4">
+                Al hacer clic, se abrirá WhatsApp con el resumen listo para enviar a nuestro equipo.
+            </p>
+        </div>
+    </aside>
+
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" role="dialog"
+        aria-modal="true">
+        <div class="fixed inset-0 bg-text-dark/70 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+
+        <div class="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] scale-95 opacity-0 transition-all duration-300"
+            id="modal-content">
+            <div class="relative h-64 sm:h-80 bg-secondary flex items-center justify-center overflow-hidden">
+                <button onclick="closeModal()"
+                    class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur flex items-center justify-center rounded-full text-text-dark hover:bg-white hover:scale-110 transition z-10 shadow-sm">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <img id="modal-image" src="" alt="Producto" class="w-full h-full object-cover hidden">
+                <div id="modal-icon-placeholder"
+                    class="flex flex-col items-center justify-center w-full h-full p-8 text-primary">
+                    <span id="modal-icon-bg"
+                        class="absolute text-[15rem] opacity-10 transform -rotate-12 select-none"></span>
+                    <div class="text-center relative z-10">
+                        <span id="modal-icon" class="text-7xl sm:text-8xl drop-shadow-md"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-grow bg-white relative z-10 -mt-6 rounded-t-3xl shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                <div class="flex items-center justify-between mb-3">
+                    <span id="modal-category"
+                        class="px-3 py-1 bg-accent/10 text-accent text-xs font-extrabold uppercase rounded-full tracking-wider">
+                        Categoría
+                    </span>
+                    <div id="modal-stock-badge"
+                        class="flex items-center text-xs font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                        <i class="fas fa-check-circle mr-1.5"></i> En Stock
+                    </div>
+                </div>
+
+                <h3 id="modal-name" class="text-2xl sm:text-3xl font-extrabold text-text-dark leading-tight mb-4">
+                    Nombre del Producto
+                </h3>
+
+                <div class="mb-6">
+                    <span id="modal-price" class="text-4xl font-extrabold text-primary">
+                        $0
+                    </span>
+                </div>
+
+                <p id="modal-description" class="text-gray-600 leading-relaxed mb-8 text-base sm:text-lg">
+                    Descripción detallada del producto aquí.
+                </p>
+
+                <div class="grid grid-cols-2 gap-4 mb-8 bg-secondary/30 p-4 rounded-xl">
+                    <div>
+                        <span class="block text-xs font-bold text-text-dark/50 uppercase mb-1">Tono / Acabado</span>
+                        <span id="modal-color" class="font-semibold text-text-dark flex items-center">
+                            <span
+                                class="w-3 h-3 rounded-full bg-accent mr-2 inline-block border border-black/10"></span>
+                            <span id="modal-color-text">Tono</span>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-text-dark/50 uppercase mb-1">Disponibles</span>
+                        <span id="modal-stock-count" class="font-semibold text-text-dark">0 uds.</span>
+                    </div>
+                </div>
+
+                <div class="flex space-x-4 sticky bottom-0 bg-white pt-4 pb-2 border-t border-gray-100">
+                    <div class="flex items-center border-2 border-secondary rounded-xl px-4 bg-secondary/20">
+                        <button onclick="adjustModalQuantity(-1)"
+                            class="text-primary hover:text-accent p-3 transition active:scale-90">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" id="modal-quantity" value="1" min="1" max="99"
+                            class="w-12 text-center bg-transparent font-bold text-lg text-text-dark focus:outline-none"
+                            readonly>
+                        <button onclick="adjustModalQuantity(1)"
+                            class="text-primary hover:text-accent p-3 transition active:scale-90">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <button id="add-to-cart-btn"
+                        class="flex-1 bg-text-dark text-white font-bold py-4 rounded-xl hover:bg-primary transition-all duration-300 shadow-lg flex items-center justify-center text-lg active:scale-95">
+                        <i class="fas fa-cart-plus mr-3"></i>
+                        <span>Añadir al Pedido</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="https://wa.me/573188401247?text=Hola%20Euforia%20Boutique,%20quisiera%20asesor%C3%ADa%20personalizada."
+        target="_blank"
+        class="whatsapp-float w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center text-white text-3xl transition-transform hover:scale-110"
+        title="Habla con una asesora">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script type="module">
+
+        window.formatCOP = (val) =>
+            new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(val);
+
+        // Importar funciones necesarias de Firebase SDK (versión modular v9+)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // --- CONFIGURACIÓN ---
+        // Se importa la configuración desde el archivo externo firebase-config.js
+        import { firebaseConfig } from "./firebase-config.js";
+
+        const appId = 'euforia';
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Referencia a la colección de productos. 
+        const productsCollectionPath = `/artefactos/${appId}/público/datos/productos`;
+
+
+        // --- ESTADO GLOBAL ---
+        let productsData = [];
+        let cart = [];
+        window.cart = cart;
+        let filters = { areas: [], maxPrice: 300000 };
+        let isOfflineMode = false;
+
+        // --- DATA QUEMADA (BACKUP) ---
+        const BACKUP_PRODUCTS = [
+            { id: 'bk1', name: "Sérum Iluminador Vitamina C", price: 119900, area: "Skincare", color: "Transparente", stock: 15, description: "Potente fórmula con 15% Vitamina C pura. Combate radicales libres e ilumina visiblemente la piel desde el primer uso.", imageUrl: "" },
+            { id: 'bk2', name: "Hydro-Boost Ácido Hialurónico", price: 159000, area: "Skincare", color: "Blanco Nube", stock: 18, description: "Hidratación profunda 72 horas.", imageUrl: "" },
+            { id: 'bk3', name: "Base 'Second Skin' Matte", price: 89900, area: "Rostro", color: "Beige Neutro", stock: 22, description: "Cobertura construible de media a alta con acabado mate aterciopelado.", imageUrl: "" },
+            { id: 'bk4', name: "Paleta Sombras 'Euforia Night'", price: 105000, area: "Ojos", color: "Multitono", stock: 8, description: "12 tonos ultra-pigmentados para looks infinitos.", imageUrl: "" },
+            { id: 'bk5', name: "Labial Líquido 'Velvet Kiss'", price: 59900, area: "Labios", color: "Rosa Cereza", stock: 30, description: "Textura mousse que seca en un mate cómodo.", imageUrl: "" }
+        ];
+
+        // --- REFERENCIAS DOM ---
+        window.els = {
+            grid: document.getElementById('product-grid'),
+            skeleton: document.getElementById('loading-skeleton'),
+            cartSidebar: document.getElementById('cart-sidebar'),
+            cartOverlay: document.getElementById('cart-overlay'),
+            cartItems: document.getElementById('cart-items-container'),
+            cartTotal: document.getElementById('cart-total'),
+            cartCount: document.getElementById('cart-count'),
+            modal: document.getElementById('product-modal'),
+            modalContent: document.getElementById('modal-content'),
+            filterSidebar: document.getElementById('filter-sidebar'),
+            filterCategories: document.getElementById('filter-categories'),
+            noResults: document.getElementById('no-results'),
+            priceRange: document.getElementById('price-range'),
+            priceValue: document.getElementById('price-value'),
+            offlineBadge: document.getElementById('offline-mode-badge')
+        };
+
+        // --- FUNCIONES DE FIREBASE ---
+
+        function subscribeToProducts() {
+            const q = query(collection(db, productsCollectionPath), orderBy('name'));
+
+            // Intentamos conectar. Si falla repetidamente, onSnapshot lanzará error.
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                // Si logramos conexión, desactivamos modo offline si estaba activo
+                if (isOfflineMode) {
+                    isOfflineMode = false;
+                    els.offlineBadge.classList.add('hidden');
+                }
+
+                productsData = [];
+                snapshot.forEach((doc) => {
+                    productsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // 🔧 sincroniza el estado global que la UI usa
+                window.productsData = productsData.slice();
+
+                // Comprobación de colección vacía para cargar demo data inicial
+                if (productsData.length === 0 && !window.demoDataAttempted) {
+                    window.demoDataAttempted = true; // Evitar bucles
+                    // Intentamos cargar data inicial solo una vez
+                    checkAndLoadDemoData().then(() => {
+                        // Si se cargaron, la siguiente ejecución de onSnapshot los mostrará
+                    });
+                } else {
+                    updateUI();
+                }
+            }, (error) => {
+                console.error("Error de conexión a Firebase:", error);
+                // Activar modo offline si falla la conexión
+                enableOfflineMode();
+            });
+        }
+
+
+        function enableOfflineMode() {
+            if (isOfflineMode) return; // Ya estamos en offline
+            console.warn("⚠️ Activando modo offline con data de respaldo.");
+            isOfflineMode = true;
+            productsData = [...BACKUP_PRODUCTS]; // Usar copia de backup
+            els.offlineBadge.classList.remove('hidden');
+            updateUI();
+        }
+
+        function updateUI() {
+            initFilters();
+            renderProducts();
+            els.skeleton.classList.add('hidden');
+            els.grid.classList.remove('hidden');
+        }
+
+        // Verifica si la colección está realmente vacía antes de intentar cargar
+        async function checkAndLoadDemoData() {
+            try {
+                const q = query(collection(db, productsCollectionPath));
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) {
+                    console.log("⚠️ Colección vacía detectada. Iniciando carga de datos demo...");
+                    const promises = BACKUP_PRODUCTS.map(p => {
+                        // Eliminamos el ID temporal 'bk' antes de guardar
+                        const { id, ...productData } = p;
+                        return addDoc(collection(db, productsCollectionPath), productData);
+                    });
+                    await Promise.all(promises);
+                    console.log("✅ Datos demo cargados exitosamente en Firebase.");
+                }
+            } catch (e) {
+                console.error("Error verificando/cargando demo data:", e);
+                // Si falla esto también, aseguramos modo offline
+                enableOfflineMode();
+            }
+        }
+
+        // --- AUTENTICACIÓN ROBUSTA ---
+        if (typeof __initial_auth_token !== 'undefined') {
+            signInWithCustomToken(auth, __initial_auth_token).catch(enableOfflineMode);
+        } else {
+            signInAnonymously(auth).catch(enableOfflineMode);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log("✅ Auth confirmada. Iniciando suscripción a datos...");
+                subscribeToProducts();
+            }
+        });
+
+
+        // --- EXPORTAR FUNCIONES GLOBALES ---
+        window.productsData = productsData;
+
+        // --- UTILIDADES FORMATO ---
+        const formatCOP = (val) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(val);
+
+        window.getIcon = (area) => {
+            const icons = { 'Skincare': '💧', 'Rostro': '✨', 'Ojos': '👁️', 'Labios': '💋' };
+            return icons[area] || '🛍️';
+        };
+
+        window.convertDriveLink = (url) => {
+            if (!url) return null;
+            if (url.match(/\.(jpeg|jpg|gif|png)$/) != null) return url;
+            let id = null;
+            const parts = url.split('/');
+            const dIndex = parts.indexOf('d');
+            if (dIndex !== -1 && parts.length > dIndex + 1) {
+                id = parts[dIndex + 1];
+            } else if (url.includes('id=')) {
+                const match = url.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) id = match[1];
+            }
+            if (id) return `https://lh3.googleusercontent.com/d/${id}=s800`;
+            return url;
+        }
+
+        // --- RENDERIZADO Y LÓGICA DE UI ---
+        window.renderProducts = () => {
+            // Usamos la variable global window.productsData que puede tener datos reales o de backup
+            const dataToRender = isOfflineMode ? BACKUP_PRODUCTS : window.productsData;
+
+            const filtered = dataToRender.filter(p => {
+                const areaOk = filters.areas.length === 0 || filters.areas.includes(p.area);
+                const priceOk = p.price <= filters.maxPrice;
+                return areaOk && priceOk;
+            });
+
+            if (filtered.length === 0) {
+                els.grid.classList.add('hidden');
+                els.noResults.classList.remove('hidden');
+                return;
+            }
+
+            els.grid.classList.remove('hidden');
+            els.noResults.classList.add('hidden');
+
+            els.grid.innerHTML = filtered.map(p => {
+                const imgUrl = window.convertDriveLink(p.imageUrl);
+                const imageHTML = imgUrl
+                    ? `<img src="${imgUrl}" alt="${p.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'text-6xl sm:text-7xl transition-transform duration-500 group-hover:scale-110\\'>${window.getIcon(p.area)}</span>'">`
+                    : `<span class="text-6xl sm:text-7xl transition-transform duration-500 group-hover:scale-110">${window.getIcon(p.area)}</span>`;
+
+                return `
+                <div class="product-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 cursor-pointer group" onclick="openModal('${p.id}')">
+                    <div class="h-48 sm:h-56 bg-secondary/50 flex items-center justify-center relative overflow-hidden">
+                        ${imageHTML}
+                        ${(p.stock && p.stock < 10) ? `<span class="absolute top-3 right-3 bg-accent text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm">¡Últimas uds!</span>` : ''}
+                    </div>
+                    <div class="p-4 sm:p-5">
+                        <p class="text-xs font-bold text-primary/70 uppercase tracking-wider mb-1 flex items-center">
+                            ${window.getIcon(p.area)} <span class="ml-1">${p.area}</span>
+                        </p>
+                        <h3 class="font-bold text-text-dark text-base sm:text-lg leading-tight line-clamp-2 h-11 sm:h-14">${p.name}</h3>
+                        <div class="flex items-center justify-between mt-3 sm:mt-4">
+                            <span class="text-xl sm:text-2xl font-extrabold text-primary">${formatCOP(p.price)}</span>
+                            <button class="w-10 h-10 bg-secondary text-primary rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors shadow-sm active:scale-95">
+                                <i class="fas fa-plus"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        </div>
-    <script type="module" src="firebase-config.js"></script>
-
-    <script type="module">
-        import { firebaseConfig } from './firebase-config.js';
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js';
-
-        // 1. Inicialización de Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const productsRef = collection(db, 'products');
-
-        // 2. Elementos del DOM
-        const els = {
-            productsContainer: document.getElementById('products-container'),
-            loadingState: document.getElementById('loading-state'),
-            emptyState: document.getElementById('empty-state'),
-            modal: document.getElementById('product-modal'),
-            cartSidebar: document.getElementById('cart-sidebar'),
-            cartOverlay: document.getElementById('cart-overlay'),
-            cartCount: document.getElementById('cart-count'),
-            cartItemCount: document.getElementById('cart-item-count'),
-            cartTotal: document.getElementById('cart-total'),
-            cartItemsContainer: document.getElementById('cart-items-container'),
-            checkoutBtn: document.getElementById('checkout-btn'),
-            search: document.getElementById('search-input'),
-            categoryFilter: document.getElementById('category-filter'),
-            sizeFilters: document.getElementById('size-filters'),
-            priceFilter: document.getElementById('price-filter'),
-            priceRangeLabel: document.getElementById('price-range-label'),
-            filtersOverlay: document.getElementById('filters-overlay'),
-            filtersSidebar: document.getElementById('filters-sidebar'),
-            modalSizeOptions: document.getElementById('modal-size-options'),
-            modalAddToCartBtn: document.getElementById('add-to-cart-btn'),
-            sizeWarning: document.getElementById('size-warning')
+            `}).join('');
         };
 
+        window.initFilters = () => {
+            const dataToUse = isOfflineMode ? BACKUP_PRODUCTS : window.productsData;
+            const areas = [...new Set(dataToUse.map(p => p.area))].filter(Boolean).sort();
 
-        // 3. Estado Global
-        let allProducts = [];
-        let filteredProducts = [];
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let currentModalProduct = null;
-        let selectedModalSize = null;
-
-        const filters = {
-            searchQuery: '',
-            category: '',
-            size: '',
-            maxPrice: 500000,
-            allCategories: new Set(),
-            allSizes: new Set()
+            if (areas.length === 0) {
+                els.filterCategories.innerHTML = '<p class="text-sm text-gray-400 italic">Cargando categorías...</p>';
+                return;
+            }
+            els.filterCategories.innerHTML = areas.map(area => `
+                <label class="flex items-center p-3 bg-secondary/30 rounded-xl cursor-pointer hover:bg-secondary/70 transition">
+                    <input type="checkbox" value="${area}" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary accent-primary" onchange="updateFiltersState()">
+                    <span class="ml-3 text-text-dark font-medium flex items-center">
+                        <span class="mr-2">${window.getIcon(area)}</span> ${area}
+                    </span>
+                </label>
+            `).join('');
         };
 
-
-        // 4. Utilidades
-
-        function formatCOP(amount) {
-            return new Intl.NumberFormat('es-CO', {
-                style: 'currency',
-                currency: 'COP',
-                minimumFractionDigits: 0
-            }).format(amount);
+        window.updateFiltersState = () => {
+            filters.areas = Array.from(document.querySelectorAll('#filter-categories input:checked')).map(i => i.value);
         }
 
-        function getBasePrice(product) {
-            // Asume que el precio base es el primer precio en el array o el único precio
-            if (Array.isArray(product.price) && product.price.length > 0) {
-                return product.price[0];
-            }
-            return product.price || 0;
+        window.applyFilters = () => {
+            window.renderProducts();
+            if (window.innerWidth < 768) window.toggleFilters(false);
+            window.scrollTo({ top: document.getElementById('main-header').offsetHeight, behavior: 'smooth' });
         }
 
-        function getDisplayPrice(product) {
-            if (Array.isArray(product.price) && product.price.length > 1) {
-                return `${formatCOP(product.price[0])} - ${formatCOP(product.price[product.price.length - 1])}`;
-            }
-            return formatCOP(product.price || 0);
+        window.resetFilters = () => {
+            filters = { areas: [], maxPrice: 300000 };
+            document.querySelectorAll('#filter-categories input').forEach(i => i.checked = false);
+            els.priceRange.value = 300000;
+            els.priceValue.textContent = formatCOP(300000);
+            window.renderProducts();
         }
 
-        // 5. Renderizado de la UI
+        window.toggleFilters = (show) => {
+            const sidebar = els.filterSidebar;
+            const isHidden = sidebar.classList.contains('sidebar-mobile-hidden');
+            if (show === undefined) { show = isHidden; }
 
-        function renderProducts(products) {
-            els.productsContainer.innerHTML = '';
-            els.loadingState.classList.add('hidden');
-            els.emptyState.classList.add('hidden');
-
-            if (products.length === 0) {
-                els.emptyState.classList.remove('hidden');
-                return;
-            }
-
-            products.forEach(product => {
-                const card = document.createElement('div');
-                card.className = 'product-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transform hover:scale-[1.02] transition duration-300';
-                card.onclick = () => openModal(product);
-
-                // Determinar la imagen a usar
-                const imageUrl = product.images && product.images.length > 0 ? product.images[0].url : 'https://via.placeholder.com/300x400.png?text=Euforia';
-
-                card.innerHTML = `
-                    <div class="aspect-[3/4] overflow-hidden">
-                        <img src="${imageUrl}" alt="${product.name}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
-                    </div>
-                    <div class="p-4 text-center">
-                        <p class="text-sm text-gray-500 uppercase font-semibold">${product.category}</p>
-                        <h4 class="text-lg font-bold truncate mt-1 mb-2">${product.name}</h4>
-                        <p class="text-xl font-extrabold text-red-600">${getDisplayPrice(product)}</p>
-                    </div>
-                `;
-                els.productsContainer.appendChild(card);
-            });
-        }
-
-        function renderFilters() {
-            // Renderizar Categorías
-            els.categoryFilter.innerHTML = '<option value="">Todas</option>';
-            Array.from(filters.allCategories).sort().forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                if (filters.category === category) {
-                    option.selected = true;
-                }
-                els.categoryFilter.appendChild(option);
-            });
-
-            // Renderizar Tallas
-            els.sizeFilters.innerHTML = '';
-            Array.from(filters.allSizes).sort().forEach(size => {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.textContent = size;
-                button.className = `px-3 py-1 border rounded-full text-sm font-semibold transition duration-200 
-                                    ${filters.size === size ? 'bg-[#4A000A] text-white border-[#4A000A]' : 'bg-white text-[#4A000A] border-gray-300 hover:bg-pink-100'}`;
-                button.onclick = () => applyFilter('size', filters.size === size ? '' : size);
-                els.sizeFilters.appendChild(button);
-            });
-        }
-
-        function updatePriceRangeLabel() {
-            els.priceRangeLabel.textContent = `COP $0 - ${formatCOP(filters.maxPrice)}${filters.maxPrice >= 500000 ? '+' : ''}`;
-        }
-
-        function renderCart() {
-            els.cartItemsContainer.innerHTML = '';
-            const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-            const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0);
-
-            els.cartCount.textContent = totalItems;
-            els.cartItemCount.textContent = totalItems;
-            els.cartTotal.textContent = formatCOP(total);
-            els.checkoutBtn.disabled = cart.length === 0;
-
-            els.cartCount.classList.toggle('opacity-0', totalItems === 0);
-
-            if (cart.length === 0) {
-                els.cartItemsContainer.innerHTML = '<p class="text-center text-gray-500 mt-10">Tu carrito está vacío 😔</p>';
-                return;
-            }
-
-            cart.forEach(item => {
-                const itemEl = document.createElement('div');
-                itemEl.className = 'flex items-center space-x-4 p-3 border-b last:border-b-0';
-                itemEl.innerHTML = `
-                    <img src="${item.imageUrl}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md flex-shrink-0">
-                    <div class="flex-grow">
-                        <h4 class="font-semibold truncate">${item.name}</h4>
-                        <p class="text-sm text-gray-500">Talla: ${item.size}</p>
-                        <p class="text-sm font-bold text-red-600">${formatCOP(item.price)}</p>
-                    </div>
-                    <div class="flex items-center space-x-2 flex-shrink-0">
-                        <button onclick="changeQuantity('${item.id}', -1)" class="bg-gray-200 text-gray-600 w-6 h-6 rounded-full hover:bg-gray-300 transition">-</button>
-                        <span class="font-medium w-4 text-center">${item.quantity}</span>
-                        <button onclick="changeQuantity('${item.id}', 1)" class="bg-gray-200 text-gray-600 w-6 h-6 rounded-full hover:bg-gray-300 transition">+</button>
-                    </div>
-                `;
-                els.cartItemsContainer.appendChild(itemEl);
-            });
-
-            saveCart();
-        }
-
-        // 6. Funcionalidad del Carrito
-
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function addToCart(product, size) {
-            const itemId = `${product.id}-${size}`;
-            const existingItem = cart.find(item => item.id === itemId);
-
-            const basePrice = getBasePrice(product);
-
-            if (existingItem) {
-                existingItem.quantity += 1;
+            if (show) {
+                sidebar.classList.remove('sidebar-mobile-hidden');
+                sidebar.classList.add('fixed', 'inset-0', 'z-50', 'm-4', 'h-auto', 'max-h-[90vh]', 'overflow-y-auto', 'border-2', 'border-primary/20', 'shadow-2xl');
             } else {
-                cart.push({
-                    id: itemId,
-                    name: product.name,
-                    price: basePrice,
-                    size: size,
-                    imageUrl: product.images && product.images.length > 0 ? product.images[0].url : 'https://via.placeholder.com/64x64.png?text=P',
-                    quantity: 1
-                });
+                sidebar.classList.add('sidebar-mobile-hidden');
+                sidebar.classList.remove('fixed', 'inset-0', 'z-50', 'm-4', 'h-auto', 'max-h-[90vh]', 'overflow-y-auto', 'border-2', 'border-primary/20', 'shadow-2xl');
             }
-
-            renderCart();
-            openCart();
         }
 
-        function changeQuantity(itemId, delta) {
-            const itemIndex = cart.findIndex(item => item.id === itemId);
+        els.priceRange.addEventListener('input', (e) => {
+            filters.maxPrice = parseInt(e.target.value);
+            els.priceValue.textContent = formatCOP(filters.maxPrice);
+        });
 
-            if (itemIndex > -1) {
-                cart[itemIndex].quantity += delta;
-                if (cart[itemIndex].quantity <= 0) {
-                    cart.splice(itemIndex, 1); // Remover si la cantidad es 0 o menos
-                }
-            }
+    </script>
 
-            renderCart();
+    <script>
+        let currentModalProductId = null;
+
+        function getData() {
+            // Pequeño helper para saber de dónde sacar los datos (window.isOfflineMode no es directamente accesible, 
+            // pero podemos inferirlo o exponerlo si fuera necesario. Por simplicidad, usaremos window.productsData 
+            // que trataremos de mantener sincronizado en el módulo principal).
+            // Una mejor forma es acceder a través de una función global expuesta.
+            // Para este caso simple, asumiremos que window.productsData tiene lo correcto.
+            return window.productsData.length > 0 ? window.productsData : [];
         }
 
-        function clearCart() {
-            cart = [];
-            renderCart();
-            closeCart();
-            alert('¡Carrito vaciado!');
-        }
+        function openModal(id) {
+            // Buscamos en los datos globales actuales
+            const p = window.productsData.find(prod => prod.id === id) || window.productsData.find(prod => prod.id === id);
+            if (!p) return;
 
-        window.changeQuantity = changeQuantity;
-        window.clearCart = clearCart;
-        window.openCart = openCart;
-        window.closeCart = closeCart;
-        window.generateWhatsAppLink = generateWhatsAppLink;
+            currentModalProductId = p.id;
 
+            const imgUrl = window.convertDriveLink(p.imageUrl);
+            const modalImg = document.getElementById('modal-image');
+            const modalIconPlaceholder = document.getElementById('modal-icon-placeholder');
 
-        // 7. Funcionalidad de Filtros y Búsqueda
-
-        function applyFilter(key, value) {
-            if (key === 'maxPrice' && value < 0) return;
-            filters[key] = value;
-            if (key !== 'maxPrice') {
-                els.search.value = filters.searchQuery; // Sincroniza el input de búsqueda
-            }
-            if (key === 'maxPrice') {
-                els.priceFilter.value = value;
-                updatePriceRangeLabel();
-            }
-            filterProducts();
-        }
-
-        function resetFilters() {
-            filters.searchQuery = '';
-            filters.category = '';
-            filters.size = '';
-            filters.maxPrice = 500000;
-
-            els.search.value = '';
-            els.categoryFilter.value = '';
-            els.priceFilter.value = 500000;
-
-            updatePriceRangeLabel();
-            filterProducts();
-            renderFilters(); // Para resetear los botones de talla
-        }
-
-        function filterProducts() {
-            const { searchQuery, category, size, maxPrice } = filters;
-            const searchLower = searchQuery.toLowerCase();
-
-            filteredProducts = allProducts.filter(product => {
-                // Filtro de Búsqueda
-                const matchesSearch = product.name.toLowerCase().includes(searchLower) ||
-                    (product.description && product.description.toLowerCase().includes(searchLower));
-
-                // Filtro de Categoría
-                const matchesCategory = !category || product.category === category;
-
-                // Filtro de Talla
-                const matchesSize = !size || (product.sizes && product.sizes.includes(size));
-
-                // Filtro de Precio
-                const basePrice = getBasePrice(product);
-                const matchesPrice = basePrice <= maxPrice;
-
-                return matchesSearch && matchesCategory && matchesSize && matchesPrice;
-            });
-
-            renderProducts(filteredProducts);
-        }
-
-        window.applyFilter = applyFilter;
-        window.resetFilters = resetFilters;
-        window.toggleFilters = toggleFilters;
-
-
-        // 8. Funcionalidad de Modales
-
-        function openModal(product) {
-            currentModalProduct = product;
-            selectedModalSize = null;
-            els.sizeWarning.classList.add('hidden');
-            els.modalAddToCartBtn.disabled = true;
-
-            // Llenar el modal con datos
-            document.getElementById('modal-name').textContent = product.name;
-            document.getElementById('modal-price').textContent = getDisplayPrice(product);
-            document.getElementById('modal-description').textContent = product.description || 'Sin descripción.';
-            
-            const imageUrl = product.images && product.images.length > 0 ? product.images[0].url : 'https://via.placeholder.com/600x800.png?text=Euforia';
-            document.getElementById('modal-image').src = imageUrl;
-            document.getElementById('modal-image').alt = product.name;
-
-            // Renderizar opciones de talla
-            els.modalSizeOptions.innerHTML = '';
-            if (product.sizes && product.sizes.length > 0) {
-                product.sizes.forEach(size => {
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    button.textContent = size;
-                    button.className = 'modal-size-option px-4 py-2 border rounded-full text-sm font-semibold transition duration-200 bg-white text-[#4A000A] border-gray-300 hover:bg-pink-100';
-                    button.onclick = () => selectModalSize(size, button);
-                    els.modalSizeOptions.appendChild(button);
-                });
+            if (imgUrl) {
+                modalImg.src = imgUrl;
+                modalImg.classList.remove('hidden');
+                modalIconPlaceholder.classList.add('hidden');
+                modalImg.onerror = () => {
+                    modalImg.classList.add('hidden');
+                    modalIconPlaceholder.classList.remove('hidden');
+                };
             } else {
-                 // Si no hay tallas, asume una talla única para añadir al carrito
-                selectedModalSize = 'Única';
-                els.modalSizeOptions.innerHTML = '<p class="text-sm text-gray-500">Talla Única</p>';
-                els.modalAddToCartBtn.disabled = false;
+                modalImg.classList.add('hidden');
+                modalIconPlaceholder.classList.remove('hidden');
             }
+
+            document.getElementById('modal-icon').textContent = window.getIcon(p.area);
+            document.getElementById('modal-icon-bg').textContent = window.getIcon(p.area);
+            document.getElementById('modal-category').textContent = p.area;
+            document.getElementById('modal-name').textContent = p.name;
+            document.getElementById('modal-price').textContent = formatCOP(p.price);
+            document.getElementById('modal-description').textContent = p.description || "Sin descripción disponible.";
+            document.getElementById('modal-color-text').textContent = p.color || "N/A";
+            document.getElementById('modal-stock-count').textContent = `${p.stock !== undefined ? p.stock : '?'} unidades`;
+
+            const badge = document.getElementById('modal-stock-badge');
+            const addBtn = document.getElementById('add-to-cart-btn');
+
+            // Si no hay info de stock (ej. en modo offline básico), asumimos que hay
+            const stock = p.stock !== undefined ? p.stock : 10;
+
+            if (stock > 0) {
+                badge.className = "flex items-center text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full";
+                badge.innerHTML = '<i class="fas fa-check-circle mr-1.5"></i> En Stock';
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="fas fa-cart-plus mr-3"></i> <span>Añadir al Pedido</span>';
+                addBtn.classList.remove('bg-gray-300', 'cursor-not-allowed', 'text-gray-500');
+                addBtn.classList.add('bg-text-dark', 'text-white', 'hover:bg-primary');
+            } else {
+                badge.className = "flex items-center text-xs font-bold text-red-700 bg-red-100 px-3 py-1 rounded-full";
+                badge.innerHTML = '<i class="fas fa-times-circle mr-1.5"></i> Agotado';
+                addBtn.disabled = true;
+                addBtn.innerHTML = '<span>Agotado Temporalmente</span>';
+                addBtn.classList.remove('bg-text-dark', 'text-white', 'hover:bg-primary');
+                addBtn.classList.add('bg-gray-300', 'cursor-not-allowed', 'text-gray-500');
+            }
+
+            document.getElementById('modal-quantity').value = 1;
 
             els.modal.classList.remove('hidden');
+            els.modal.classList.add('flex');
+            setTimeout(() => {
+                els.modalContent.classList.remove('scale-95', 'opacity-0');
+                els.modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
             document.body.classList.add('overflow-hidden');
         }
 
         function closeModal() {
-            els.modal.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-            currentModalProduct = null;
-            selectedModalSize = null;
+            els.modalContent.classList.remove('scale-100', 'opacity-100');
+            els.modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                els.modal.classList.add('hidden');
+                els.modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+                document.getElementById('modal-image').src = '';
+            }, 200);
         }
 
-        function selectModalSize(size, clickedButton) {
-            selectedModalSize = size;
-            els.sizeWarning.classList.add('hidden');
-            els.modalAddToCartBtn.disabled = false;
-
-            // Actualizar estilos de los botones
-            document.querySelectorAll('.modal-size-option').forEach(btn => {
-                btn.classList.remove('bg-[#4A000A]', 'text-white', 'border-[#4A000A]');
-                btn.classList.add('bg-white', 'text-[#4A000A]', 'border-gray-300', 'hover:bg-pink-100');
-            });
-
-            clickedButton.classList.add('bg-[#4A000A]', 'text-white', 'border-[#4A000A]');
-            clickedButton.classList.remove('bg-white', 'text-[#4A000A]', 'border-gray-300', 'hover:bg-pink-100');
+        function adjustModalQuantity(change) {
+            const input = document.getElementById('modal-quantity');
+            let val = parseInt(input.value) + change;
+            if (val < 1) val = 1;
+            const p = window.productsData.find(prod => prod.id === currentModalProductId);
+            const stock = (p && p.stock !== undefined) ? p.stock : 99;
+            if (val > stock) val = stock;
+            input.value = val;
         }
 
         function addToCartFromModal() {
-            if (!currentModalProduct) return;
+            if (!currentModalProductId) return;
+            const qty = parseInt(document.getElementById('modal-quantity').value);
+            const p = window.productsData.find(prod => prod.id === currentModalProductId);
 
-            if (!selectedModalSize) {
-                els.sizeWarning.classList.remove('hidden');
-                return;
+            if (!p) return;
+
+            const stock = (p.stock !== undefined) ? p.stock : 99;
+            const existing = cart.find(item => item.id === p.id);
+
+            if (existing) {
+                if (existing.quantity + qty <= stock) {
+                    existing.quantity += qty;
+                } else {
+                    alert(`¡Solo quedan ${stock} unidades disponibles!`);
+                    return;
+                }
+            } else {
+                cart.push({ ...p, quantity: qty });
             }
 
-            addToCart(currentModalProduct, selectedModalSize);
+            updateCartUI();
             closeModal();
+            openCart();
+            if (navigator.vibrate) navigator.vibrate(50);
         }
 
-        // 9. Funcionalidad de Overlays
+        function updateCartUI() {
+            const totalQty = cart.reduce((sum, i) => sum + i.quantity, 0);
+            els.cartCount.textContent = totalQty;
+            els.cartCount.classList.toggle('hidden', totalQty === 0);
+            if (totalQty > 0) {
+                els.cartCount.classList.add('animate-bounce');
+                setTimeout(() => els.cartCount.classList.remove('animate-bounce'), 1000);
+            }
+
+            const totalValue = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            els.cartTotal.textContent = formatCOP(totalValue);
+
+            if (cart.length === 0) {
+                els.cartItems.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-64 text-gray-400 opacity-70">
+                        <i class="fas fa-shopping-basket text-6xl mb-4"></i>
+                        <p>Tu bolsa está vacía</p>
+                    </div>
+                `;
+                document.getElementById('whatsapp-order-btn').disabled = true;
+            } else {
+                els.cartItems.innerHTML = cart.map(item => `
+                    <div class="flex items-center bg-white p-3 rounded-xl shadow-sm border-l-4 border-primary animate-[fadeIn_0.3s_ease-out]">
+                        <div class="w-12 h-12 bg-secondary text-xl flex items-center justify-center rounded-lg mr-3 shrink-0 overflow-hidden">
+                            ${item.imageUrl ? `<img src="${window.convertDriveLink(item.imageUrl)}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">` : ''}
+                            <span class="${item.imageUrl ? 'hidden' : ''}">${window.getIcon(item.area)}</span>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h4 class="font-bold text-text-dark truncate text-sm">${item.name}</h4>
+                            <p class="text-xs text-primary font-medium">${formatCOP(item.price)} x ${item.quantity}</p>
+                        </div>
+                        <div class="flex items-center bg-gray-50 rounded-lg border border-gray-100 ml-2">
+                            <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-1 text-gray-400 hover:text-primary">-</button>
+                            <span class="w-5 text-center font-bold text-xs">${item.quantity}</span>
+                            <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-1 text-gray-400 hover:text-primary">+</button>
+                        </div>
+                         <button onclick="removeFromCart('${item.id}')" class="ml-3 text-gray-300 hover:text-red-500 transition p-1">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `).join('');
+                document.getElementById('whatsapp-order-btn').disabled = false;
+            }
+        }
+
+        function updateCartQty(id, change) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            const productOriginal = window.productsData.find(p => p.id === id);
+            // Si estamos en offline mode y no hay stock definido, permitimos.
+            const maxStock = (productOriginal && productOriginal.stock !== undefined) ? productOriginal.stock : 99;
+
+            const newQty = item.quantity + change;
+            if (newQty > maxStock) {
+                alert("Máximo stock disponible alcanzado.");
+                return;
+            }
+            if (newQty <= 0) {
+                removeFromCart(id);
+            } else {
+                item.quantity = newQty;
+                updateCartUI();
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            updateCartUI();
+        }
 
         function openCart() {
+            els.cartSidebar.classList.add('open');
             els.cartOverlay.classList.add('open');
             document.body.classList.add('overflow-hidden');
         }
-
         function closeCart() {
+            els.cartSidebar.classList.remove('open');
             els.cartOverlay.classList.remove('open');
-            if (els.modal.classList.contains('hidden') && !els.filtersOverlay.classList.contains('open')) document.body.classList.remove('overflow-hidden');
+            if (els.modal.classList.contains('hidden')) document.body.classList.remove('overflow-hidden');
         }
-
-        function toggleFilters(force) {
-            const isOpen = els.filtersOverlay.classList.contains('open');
-            if (force === true || (!isOpen && force !== false)) {
-                els.filtersOverlay.classList.add('open');
-                document.body.classList.add('overflow-hidden');
-            } else if (force === false || isOpen) {
-                els.filtersOverlay.classList.remove('open');
-                if (els.modal.classList.contains('hidden') && !els.cartOverlay.classList.contains('open')) document.body.classList.remove('overflow-hidden');
-            }
-        }
-
         function closeAllOverlays() {
             closeCart();
             closeModal();
-            toggleFilters(false);
+            if (window.toggleFilters) window.toggleFilters(false);
         }
-
-        // 10. Lógica de Checkout por WhatsApp
 
         function generateWhatsAppLink() {
             if (cart.length === 0) return;
-            const phone = "573188401247"; // Número de WhatsApp fijo
+            const phone = "573188401247";
             let msg = "Hola Euforia Boutique! ✨ Quiero realizar el siguiente pedido:\n\n";
             cart.forEach(item => {
-                msg += `*${item.quantity}x* ${item.name}${item.size !== 'Única' ? ` (Talla: ${item.size})` : ''} — ${formatCOP(item.price * item.quantity)}\n`;
+                msg += `*${item.quantity}x* ${item.name} — ${formatCOP(item.price * item.quantity)}\n`;
             });
             const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
             msg += `\n*TOTAL A PAGAR: ${formatCOP(total)}*\n`;
@@ -708,77 +906,10 @@
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-
-        // 11. Carga de Datos y Listeners Iniciales
-
-        async function loadProducts() {
-            els.loadingState.classList.remove('hidden');
-            try {
-                const q = query(productsRef, orderBy('createdAt', 'desc'));
-                const querySnapshot = await getDocs(q);
-                allProducts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // Recolectar categorías y tallas
-                allProducts.forEach(p => {
-                    filters.allCategories.add(p.category);
-                    if (p.sizes) {
-                        p.sizes.forEach(s => filters.allSizes.add(s));
-                    }
-                });
-
-                filterProducts();
-                renderFilters();
-            } catch (error) {
-                console.error("Error al cargar productos:", error);
-                els.emptyState.innerHTML = `<p class="text-red-500">Error al cargar los productos. Por favor, revisa tu conexión.</p>`;
-                els.emptyState.classList.remove('hidden');
-                els.loadingState.classList.add('hidden');
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
-            // ** CÓDIGO NUEVO PARA LA SECCIÓN DE BIENVENIDA **
-            const welcomeSection = document.getElementById('welcome-section');
-            const mainContent = document.getElementById('main-content');
-            const viewProductsBtn = document.getElementById('view-products-btn');
-
-            if (viewProductsBtn && welcomeSection && mainContent) {
-                viewProductsBtn.addEventListener('click', () => {
-                    // Ocultar la bienvenida con una ligera animación de opacidad
-                    welcomeSection.classList.add('transition', 'opacity-0', 'duration-500', 'ease-out');
-                    setTimeout(() => {
-                        welcomeSection.classList.add('hidden');
-                        mainContent.classList.remove('hidden'); // Mostrar el catálogo
-                        document.body.classList.remove('overflow-hidden'); // Quitar el bloqueo si lo tenía
-
-                        // Inicia la carga de datos de Firebase DESPUÉS de ver el catálogo
-                        loadProducts(); 
-                    }, 500); 
-                    
-                    // Asegurar que el cuerpo de la página está listo para el scroll
-                    document.body.classList.remove('overflow-hidden');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-                
-                // Opción para mantener la bienvenida a pantalla completa al inicio
-                document.body.classList.add('overflow-hidden');
-            } else {
-                // Fallback si no encuentra los elementos de bienvenida (ej. si están vacíos)
-                loadProducts(); 
-            }
-            // ** FIN CÓDIGO NUEVO **
-
-            // Listeners existentes
-            els.search.addEventListener('input', (e) => applyFilter('searchQuery', e.target.value));
-            els.categoryFilter.addEventListener('change', (e) => applyFilter('category', e.target.value));
-            els.priceFilter.addEventListener('input', (e) => applyFilter('maxPrice', parseInt(e.target.value)));
-
-            document.getElementById('toggle-cart-btn').addEventListener('click', openCart);
             document.getElementById('add-to-cart-btn').addEventListener('click', addToCartFromModal);
             document.getElementById('toggle-filters-btn').addEventListener('click', () => window.toggleFilters());
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllOverlays(); });
-
-            renderCart(); // Renderiza el carrito desde el localStorage al inicio
         });
     </script>
 </body>
