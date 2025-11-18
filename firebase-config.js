@@ -10,4 +10,4 @@ export const firebaseConfig = {
     measurementId: "G-CSMDCL57X6"
 };
 
-export const numPag = '+573188401247'
+export const numPag = '+573219450153'
