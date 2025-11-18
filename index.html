@@ -409,7 +409,7 @@
 
         // --- CONFIGURACIÓN ---
         // Se importa la configuración desde el archivo externo firebase-config.js
-        import { firebaseConfig } from "./firebase-config.js";
+        import { firebaseConfig, numPag } from "./firebase-config.js";
 
         const appId = 'euforia';
 
@@ -895,7 +895,7 @@
 
         function generateWhatsAppLink() {
             if (cart.length === 0) return;
-            const phone = "573188401247";
+            const phone = numPag;
             let msg = "Hola Euforia Boutique! ✨ Quiero realizar el siguiente pedido:\n\n";
             cart.forEach(item => {
                 msg += `*${item.quantity}x* ${item.name} — ${formatCOP(item.price * item.quantity)}\n`;

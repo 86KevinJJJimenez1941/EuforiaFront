@@ -9,3 +9,5 @@ export const firebaseConfig = {
     appId: "1:687723551803:web:a2a7b50fd78083883e501e",
     measurementId: "G-CSMDCL57X6"
 };
+
+export const numPag = '+573188401247'
